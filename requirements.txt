@@ -1,0 +1,10 @@
+customtkinter
+tkinterdnd2
+python-magic-bin; platform_system == "Windows"
+Pillow
+pandas
+openpyxl
+xlrd
+pyarrow
+pywin32; platform_system == "Windows"
+pybind11

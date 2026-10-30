@@ -1,0 +1,38 @@
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# PyInstaller build output and release executable
+/build/
+/dist/
+
+# CMake generated files
+/cpp_engine/build/
+CMakeFiles/
+CMakeCache.txt
+
+# Generated native build artifacts
+*.obj
+*.o
+*.exp
+*.iobj
+*.ilk
+*.pdb
+*.lib
+*.tlog/
+
+# IDE settings
+.vscode/
+
+# Temporary files and logs
+*.log
+*.tmp
+
+# FFmpeg binary (keep its licence/documentation)
+/vendor/ffmpeg/ffmpeg.exe
