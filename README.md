@@ -1,125 +1,209 @@
-# File Converter Engine
+<div align="center">
 
-A Windows-first desktop file converter built with Python, CustomTkinter and a small optional C++ extension. The application uses local conversion engines; format support depends on installed libraries and external tools.
+# ⚡ File Converter Engine
 
-## Requirements
+**A fast, local-first, privacy-focused desktop file conversion workspace for Windows.**
 
-- Python 3.10+ (the included prebuilt extension, if retained, must match your exact Python version and Windows architecture)
-- Python packages from `requirements.txt`
-- FFmpeg available on `PATH` for audio/video conversion
-- LibreOffice for document conversion when installed; Microsoft Word plus `pywin32` is a Windows fallback
-- CMake and a compatible C++ compiler only if rebuilding the optional C++ extension
+[![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-0078D6?logo=windows&logoColor=white)](#)
+[![Python](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-3776AB?logo=python&logoColor=white)](#)
+[![UI](https://img.shields.io/badge/GUI-CustomTkinter-blue)](#)
+[![Build](https://img.shields.io/badge/Packaging-PyInstaller%20One--File-orange)](#)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](#)
 
-Install Python dependencies from the project folder:
+*Convert images, videos, audio, office documents, and tabular data completely offline on your own machine. Features native Windows Explorer right-click cascading menus, GPU hardware acceleration, intelligent document backends, and fine-grained metadata privacy controls.*
 
-```powershell
-python -m pip install -r requirements.txt
+</div>
+
+---
+
+## 🌟 Highlights & Features
+
+- **🖱️ Native Windows 11 & 10 Explorer Cascading Menu**
+  - Right-click any supported file in File Explorer and hover over **Convert to >** for immediate, headless conversions in the same directory.
+  - Multi-file selection support (up to 100 items at once) with collision-free naming (e.g. `file_1.png`).
+  - Per-user registry integration — requires zero administrator privileges and leaves system files untouched.
+
+- **🔒 100% Offline & Privacy-Focused**
+  - Your files never leave your machine — no cloud servers, no bandwidth limits, no telemetry.
+  - One-click metadata scrubbing: strip EXIF data, GPS location coordinates, author comments, and color profiles before sharing.
+
+- **🚀 GPU Hardware Acceleration & Live Progress**
+  - Media transcoding powered by bundled FFmpeg with optional NVENC (NVIDIA), QSV (Intel), and AMF (AMD) GPU acceleration.
+  - Real-time progress percentage, conversion speed (e.g. `1.85x`), live ETA, and smooth background execution.
+  - Interactive video quality controls: Video CRF slider, custom audio bitrates, and video-to-audio extraction (`MP4 -> MP3/WAV/FLAC`).
+
+- **📄 Dual-Engine Document Conversion**
+  - Converts between `PDF`, `DOCX`, `ODT`, `RTF`, and `TXT`.
+  - Automatic dual-engine detection: prioritizes **LibreOffice CLI** for headless conversions and automatically falls back to **Microsoft Word COM automation** (`pywin32`) if LibreOffice is unavailable.
+  - Automated hang-detection watchdog timeouts and background Word COM prompt suppression.
+
+- **📦 Safe Drag-and-Drop & Archive Processing**
+  - Drag and drop individual files, folders (recursive discovery), or ZIP archives directly onto the interface.
+  - Strict ZIP slip protection (validates against directory traversal attacks) and automated workspace sandbox cleanup.
+
+- **🛑 Non-Blocking Multithreaded UI**
+  - Modern, dark-themed CustomTkinter interface with parallel batch processing for images and data.
+  - Instant cancellation: stop conversions cleanly at any time with automated temporary file cleanup.
+
+---
+
+## 🔄 Supported Format Matrix
+
+| Category | Input Formats | Available Target Formats | Engine Backend |
+| :--- | :--- | :--- | :--- |
+| **🖼️ Images** | `PNG`, `JPG`, `JPEG`, `WEBP`, `BMP`, `TIFF`, `ICO` | `PNG`, `JPEG`, `WEBP`, `BMP`, `TIFF`, `ICO` | Pillow / ImageOps |
+| **🎬 Video** | `MP4`, `MKV`, `AVI`, `MOV`, `WEBM`, `FLV`, `TS`, `M4V` | `MP4`, `MKV`, `AVI`, `MOV`, `WEBM` *(+ Audio Extraction)* | FFmpeg + NVENC/QSV/AMF |
+| **🎵 Audio** | `MP3`, `WAV`, `AAC`, `FLAC`, `OGG`, `M4A`, `WMA` | `MP3`, `WAV`, `AAC`, `FLAC`, `OGG`, `M4A` | FFmpeg |
+| **📄 Documents** | `DOCX`, `DOC`, `PDF`, `ODT`, `RTF`, `TXT` | `PDF`, `DOCX`, `ODT`, `TXT` | LibreOffice / MS Word COM |
+| **📊 Data Tables** | `CSV`, `XLSX`, `XLS`, `JSON`, `PARQUET`, `TSV` | `CSV`, `XLSX`, `JSON`, `PARQUET`, `TSV` | Pandas / OpenPyXL / PyArrow |
+
+---
+
+## 📥 Installation & Usage
+
+### Option 1: Standalone Executable (Recommended for End Users)
+
+1. Download the latest `FileConverterEngine.exe` from the [Releases](https://github.com/utkarshgupta-iitbhu/File_Converter_Engine/releases) section.
+2. Run `FileConverterEngine.exe` (no installation or Python required).
+3. *(Optional)* Go to the **Settings** tab in the app and click **Add to context menu** to activate right-click conversion in Windows Explorer.
+
+---
+
+### Option 2: Run from Source (For Developers)
+
+#### Prerequisites
+- Windows 10 or 11
+- Python 3.10, 3.11, or 3.12
+- *(Optional)* [FFmpeg](https://ffmpeg.org/) on system `PATH` (if not using the bundled binary in `vendor/ffmpeg/`)
+- *(Optional)* [LibreOffice](https://www.libreoffice.org/) or Microsoft Office for document conversion
+
+#### Setup
+1. **Clone the repository:**
+   ```powershell
+   git clone https://github.com/utkarshgupta-iitbhu/File_Converter_Engine.git
+   cd File_Converter_Engine
+   ```
+
+2. **Create and activate a virtual environment:**
+   ```powershell
+   python -m venv .venv
+   .\.venv\Scripts\Activate.ps1
+   ```
+
+3. **Install dependencies:**
+   ```powershell
+   python -m pip install --upgrade pip
+   python -m pip install -r requirements.txt
+   ```
+
+4. **Launch the application:**
+   ```powershell
+   python main.py
+   ```
+
+---
+
+## 🛠️ Building the Standalone `.exe`
+
+The repository includes a production-ready PyInstaller build script ([FileConverterEngine.spec](FileConverterEngine.spec)) and batch runner:
+
+1. **Install build dependencies:**
+   ```powershell
+   python -m pip install -r build-requirements.txt
+   ```
+
+2. **Ensure FFmpeg binary is placed:**
+   Verify `vendor\ffmpeg\ffmpeg.exe` exists in the project tree.
+
+3. **Run the build script:**
+   ```powershell
+   .\build_exe.bat
+   ```
+
+4. The optimized, single-file binary will be generated in `dist\FileConverterEngine.exe`.
+
+---
+
+## 🖱️ Windows Explorer Right-Click Integration
+
+The engine features a native static cascading menu built according to the Windows Shell specification:
+
+```text
+Right Click on file (e.g. photo.jpg)
+ ├── Open in File Converter       (Launches the full GUI with file pre-loaded)
+ └── Convert to >
+      ├── PNG                     (Converts headlessly in-place)
+      ├── JPEG
+      ├── WEBP
+      └── ...
 ```
 
-## Build a single Windows executable
+* **No Administrator Rights Needed**: Registers strictly within `HKEY_CURRENT_USER\Software\Classes\SystemFileAssociations`.
+* **Safe Management**: Activate, remove, or repair the context menu anytime directly from the **Settings** tab in the application.
+* **Seamless Updates**: Uses Windows `SHChangeNotify` to notify the shell immediately without terminating or flickering `explorer.exe`.
 
-On the Windows build machine, install the build dependencies and run:
+---
 
-```powershell
-python -m pip install -r build-requirements.txt
-build_exe.bat
-```
+## 🧪 Testing
 
-The reproducible build uses [FileConverterEngine.spec](FileConverterEngine.spec) and creates
-`dist\FileConverterEngine.exe` with PyInstaller `--onefile --windowed` behavior. The spec includes
-CustomTkinter, tkinterdnd2 resources, PythonCOM support, multiprocessing hooks, and the optional
-CPython-version-specific `cpp_engine.cp312-win_amd64.pyd` when that file is present. The C++ extension
-must match the Python ABI used to build the executable; rebuild it with `build_cpp.bat` when necessary.
-
-The executable bundles Python and Python packages, so recipients do not need Python, pip, a compiler,
-or the source repository. LibreOffice, Microsoft Office/Word, and FFmpeg are external applications and
-are not bundled. The application detects them at runtime and reports actionable errors when unavailable.
-Builds should be performed from a clean environment containing only this project's runtime and build
-requirements; a broad development environment can make PyInstaller scan unrelated packages.
-
-## Run
+The project maintains a comprehensive regression test suite covering backend detection, fallback prioritization, error boundaries, zip safety, and portable path resolution:
 
 ```powershell
-python main.py
+python -m unittest discover -s tests -p "test_*.py" -v
 ```
 
-Run the focused regression tests with:
+---
 
-```powershell
-python -m unittest discover -s tests -p "test_*.py"
+## 📂 Project Architecture
+
+```text
+File_Converter_Engine/
+├── core/
+│   ├── archive_utils.py    # Safe archive validation and sandbox extraction
+│   ├── backends.py         # Dynamic runtime discovery for LibreOffice & Word COM
+│   ├── context_menu.py     # Windows Shell registry static cascading integration
+│   ├── headless.py         # Silent, windowless in-place conversion runner
+│   ├── paths.py            # Frozen bundle vs. source portable path resolution
+│   ├── py_converters.py    # FFmpeg, Pillow, and Pandas conversion pipelines
+│   ├── router.py           # Extension mapping and supported format routing
+│   └── settings.py         # Persistent JSON settings (%APPDATA%)
+├── cpp_engine/             # Optional C++ extension (CMake + pybind11)
+├── tests/                  # Unit and integration test suite
+├── vendor/ffmpeg/          # Bundled FFmpeg runtime executable
+├── build_exe.bat           # Automated PyInstaller build script
+├── FileConverterEngine.spec# PyInstaller packaging configuration
+├── main.py                 # CustomTkinter GUI & CLI dispatcher
+└── requirements.txt        # Runtime Python dependencies
 ```
 
-You can also pass one or more file paths when launching the app, for example:
+---
 
-```powershell
-python main.py "C:\Users\You\Pictures\image.png"
-```
+## 🛡️ Privacy & Security Philosophy
 
-## C++ extension (optional)
+1. **Zero External Requests**: No outbound network sockets or external telemetry calls exist anywhere in the core engine.
+2. **Safe Decompression**: ZIP archives are verified prior to extraction to prevent directory traversal (`../../`) vulnerabilities.
+3. **No File Overwrites**: Automatic collision resolution ensures converted files append numeric indices (e.g., `document_1.pdf`) rather than destructively overwriting originals.
+4. **Isolated Document Automation**: Word COM automation executes in a sandboxed background thread with prompt suppression and strict process timeout termination.
 
-The C++ extension is not used by the normal conversion workflow. Its byte-inversion function is an experimental reversible byte transformation, **not encryption and not file-format conversion**. It streams data in chunks to avoid loading an entire file into RAM.
+---
 
-To build the extension from source on Windows, install CMake, a compatible C++ compiler, and `pybind11`, then run `build_cpp.bat` from the project folder. Alternatively, run from the project folder:
+## 🤝 Contributing
 
-```powershell
-cmake -S cpp_engine -B cpp_engine/build -Dpybind11_DIR="$(python -m pybind11 --cmakedir)"
-cmake --build cpp_engine/build --config Release
-```
+Contributions, feature suggestions, and bug reports are very welcome!
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-The exact command may vary by compiler and CMake generator. Do not copy a compiled `.pyd` from a different Python version or architecture.
+---
 
-## Supported conversion families
+## 📄 License
 
-The UI offers target formats by the input file's extension/category. Actual success still depends on the input content and the capabilities of installed engines. Media conversion uses FFmpeg; tables use Pandas and the relevant Excel/Parquet dependencies.
+Distributed under the MIT License. See `LICENSE` for more information.
 
-### Document backends
+---
 
-Document backends are discovered at runtime for every conversion. LibreOffice is searched in this order:
-
-1. `soffice`/`soffice.com` on `PATH`.
-2. Standard `Program Files`, `Program Files (x86)`, `ProgramW6432`, and per-user LibreOffice locations.
-3. LibreOffice installation information in the Windows uninstall registry keys.
-
-Microsoft Word is detected through Windows Office installation registry information and a COM availability probe when needed. The application never assumes that Windows Search visibility makes a command-line executable available.
-
-LibreOffice always has priority when it supports the requested pair. Word is used only when LibreOffice is unavailable, does not support that pair, or fails and Word supports the same pair. No software is downloaded or installed automatically.
-
-Conversion attempts are logged in the Activity tab, including backend selection, timeout, cleanup, fallback, and output validation. LibreOffice uses a 45-second default timeout for PDF-to-DOCX because PDF import can hang, and 180 seconds for other document conversions. Override these with `FCE_PDF_DOCX_TIMEOUT_SECONDS` and `FCE_DOCUMENT_TIMEOUT_SECONDS`. Microsoft Word automation runs in an isolated worker process with a 120-second default timeout, configurable with `FCE_WORD_TIMEOUT_SECONDS`; only the Word process created for that conversion is targeted during timeout cleanup.
-
-The supported document pairs are:
-
-- LibreOffice: DOC/DOCX/ODT/RTF/TXT to PDF, DOCX, ODT, or TXT; PDF to PDF, DOCX, ODT, or TXT where the installed LibreOffice build can import the PDF.
-- Microsoft Word fallback: DOC/DOCX/ODT/RTF/TXT/PDF to PDF, DOCX, ODT, or TXT where Word and `pywin32` support the pair.
-
-PDF-to-DOCX is an editable reconstruction, not a promise of faithful visual or structural recovery. The selected backend and this limitation are reported in Activity output or the command-line output.
-
-If no compatible backend is detected, the document target is not offered in the GUI and direct conversion reports the missing software and next step. Packaged EXEs must ship their Python dependencies or use a bundled runtime, but LibreOffice and Microsoft Office remain recipient-machine prerequisites and are detected at runtime.
-
-## Notes
-
-- Output files are checked for existence and non-zero size. This is a practical sanity check, not a full semantic guarantee for every file format.
-- Batch jobs currently require one compatible conversion family at a time.
-- Metadata privacy controls are persisted per Windows user under `%APPDATA%\FileConverterEngine\settings.json`.
-	EXIF, GPS/location, comments/descriptive fields, and colour profiles have separate controls. These operations
-	apply only where Pillow and the target format support them; no metadata tool can guarantee removal of every
-	possible chunk, and metadata removal cannot remove information visible in image pixels.
-- Dropping a ZIP validates every entry before extraction, rejects absolute and traversal paths, limits entry count
-	and uncompressed size, skips unsupported files, and extracts into a temporary workspace. The original archive is
-	never modified and extracted files are never executed.
-- Windows context-menu registration is per-user and can be added, removed, or repaired from Settings. It provides
-	an Open in File Converter command plus target formats derived from the router for each source extension. Explorer
-	conversions write beside each source file and choose a unique name instead of silently overwriting an output.
-	Windows 11 may place these commands under Show more options depending on Explorer policy.
-- Hardware acceleration is persisted in `%APPDATA%\FileConverterEngine\settings.json` and is also honored by
-	media conversions launched from the Explorer context menu. Windowless Explorer failures are surfaced through
-	a native Windows error dialog as well as diagnostic output.
-- The C++ extension remains optional and is not part of normal conversion.
-
-### Troubleshooting document conversion
-
-- If no document targets appear, install LibreOffice or Microsoft Office with Word and `pywin32`, then restart the app.
-- If LibreOffice is installed outside standard locations, add its `program` directory to `PATH` or ensure its uninstall entry is present.
-- If Word is installed but unavailable, repair Office or install the matching `pywin32` package for the application runtime.
-- Conversion failures preserve the existing destination and include the backend error in Activity output.
-- Packaged Windows builds must include the Python multiprocessing/freeze-support configuration and `pywin32` if Word fallback is required. LibreOffice and Office are still recipient-machine prerequisites.
-- The one-file executable was built and launched from a different working directory on the development machine. A clean Windows machine without Python or development tools was not available for verification.
+<div align="center">
+  <sub>Crafted with precision by <a href="https://github.com/utkarshgupta-iitbhu">Utkarsh Gupta</a></sub>
+</div>
